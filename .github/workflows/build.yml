@@ -5,28 +5,33 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+
     strategy:
       fail-fast: false
       matrix:
         os: [windows-latest]
         build_type: [Release]
         enable_ui: [on]
+        include:
+          - os: windows-latest
+            build_type: Release
+            enable_ui: on
 
     steps:
     - uses: actions/checkout@v3
       with:
-        submodules: 'recursive'  # Checkout the repository along with submodules
+        submodules: 'recursive'
 
     - name: ccache
       uses: hendrikmuhs/ccache-action@v1
-      if: runner.os == 'Linux'  # This step is only for Linux
+      if: runner.os == 'Linux'
       with:
         key: ${{ matrix.os }}-${{ matrix.enable_ui }}
 
-    - uses: seanmiddleditch/gha-setup-ninja@master  # Set up Ninja build system
+    - uses: seanmiddleditch/gha-setup-ninja@master
 
     - uses: ilammy/msvc-dev-cmd@v1
-      if: runner.os == 'Windows'  # This step is only for Windows
+      if: runner.os == 'Windows'
 
     - name: Install Dependencies
       shell: bash
@@ -40,18 +45,15 @@ jobs:
     - name: Generating Makefiles
       shell: bash
       run: |
-        # Set the ccache variable based on the OS
         if [[ "${{ runner.os }}" == "Windows" ]] ; then
           export enable_ccache=off
         else
           export enable_ccache=on
         fi
 
-        # Download and extract skia
         curl -L https://github.com/blueloveTH/aseprite/releases/download/v0.01/skia.zip --output skia.zip
         7z x skia.zip
 
-        # Configure the project using CMake
         cmake -S . -B build -G Ninja \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
           -DENABLE_UI=${{ matrix.enable_ui }} \
@@ -64,12 +66,11 @@ jobs:
     - name: Compiling
       shell: bash
       run: |
-        cd build && ninja  # Build using Ninja
+        cd build && ninja
 
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v3
       with:
         name: aseprite
         path: |
-          build/bin/data  # Ensure the correct relative path for artifacts
-          build/bin/aseprite.exe  # Ensure the correct relative path for executable
+          D:/a/aseprite/aseprite/build/bin/data
+          D:/a/aseprite/aseprite/build/bin/aseprite.exe
