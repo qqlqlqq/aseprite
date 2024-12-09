@@ -8,9 +8,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest]  # Define OS to be used for the build
-        build_type: [Release]  # Define build type (Release in this case)
-        enable_ui: [on]  # Whether UI is enabled in the build
+        os: [windows-latest]
+        build_type: [Release]
+        enable_ui: [on]
 
     steps:
     - uses: actions/checkout@v3
@@ -64,11 +64,12 @@ jobs:
     - name: Compiling
       shell: bash
       run: |
-        cd build && ninja
+        cd build && ninja  # Build using Ninja
 
-    - uses: actions/upload-artifact@v3
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v3
       with:
         name: aseprite
         path: |
-          D:/a/aseprite/aseprite/build/bin/data
-          D:/a/aseprite/aseprite/build/bin/aseprite.exe
+          build/bin/data  # Ensure the correct relative path for artifacts
+          build/bin/aseprite.exe  # Ensure the correct relative path for executable
